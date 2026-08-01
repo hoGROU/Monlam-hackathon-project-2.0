@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { BookOpen, Languages, Sparkles, Tags } from "lucide-react";
-import OriginalTextCard from "./OriginalTextCard";
-import TranslationCard from "./TranslationCard";
-import SummaryCard from "./SummaryCard";
+import { useState } from "react";
 import KeywordCard from "./KeywordCard";
+import OriginalTextCard from "./OriginalTextCard";
+import SummaryCard from "./SummaryCard";
+import TranslationCard from "./TranslationCard";
 
 const TABS = [
   { key: "original", label: "Original Text", icon: BookOpen, component: OriginalTextCard },
@@ -21,7 +21,7 @@ export default function DocumentTabs() {
       <div
         role="tablist"
         aria-label="Document views"
-        className="flex gap-1 overflow-x-auto rounded-xl border border-ink-200 bg-white p-1.5 dark:border-ink-800 dark:bg-ink-900"
+        className="flex gap-1 overflow-x-auto rounded-xl border border-ink-800 bg-ink-900 p-1.5"
       >
         {TABS.map((tab) => {
           const isActive = tab.key === active;
@@ -33,8 +33,8 @@ export default function DocumentTabs() {
               onClick={() => setActive(tab.key)}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-all sm:px-4 ${
                 isActive
-                  ? "bg-primary-600 text-white shadow-sm"
-                  : "text-ink-500 hover:bg-ink-100 hover:text-ink-800 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+                  ? "bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md shadow-primary-600/25"
+                  : "text-ink-400 hover:bg-ink-800 hover:text-ink-100"
               }`}
             >
               <tab.icon size={15} />

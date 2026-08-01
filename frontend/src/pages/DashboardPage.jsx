@@ -1,56 +1,59 @@
-import { useEffect, useState } from "react";
-import DocumentSidebar from "../components/dashboard/DocumentSidebar";
-import StatsSidebar from "../components/dashboard/StatsSidebar";
-import DocumentTabs from "../components/dashboard/DocumentTabs";
+import { FileUp, Info } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ChatInterface from "../components/chat/ChatInterface";
-
-function CardSkeleton() {
-  return (
-    <div className="rounded-xl border border-ink-200 bg-white p-6 dark:border-ink-800 dark:bg-ink-900 sm:p-8">
-      <div className="skeleton h-4 w-32 rounded" />
-      <div className="mt-6 space-y-3">
-        <div className="skeleton h-3.5 w-full rounded" />
-        <div className="skeleton h-3.5 w-11/12 rounded" />
-        <div className="skeleton h-3.5 w-4/5 rounded" />
-      </div>
-    </div>
-  );
-}
+import DocumentSidebar from "../components/dashboard/DocumentSidebar";
+import DocumentTabs from "../components/dashboard/DocumentTabs";
+import StatsSidebar from "../components/dashboard/StatsSidebar";
+import { useDocument } from "../context/DocumentContext";
 
 export default function DashboardPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const { document: doc, isDemo, hasDocument } = useDocument();
 
+  // Landing directly on /dashboard with nothing loaded: go pick a file.
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 550);
-    return () => clearTimeout(t);
-  }, []);
+    if (!hasDocument) navigate("/", { replace: true });
+  }, [hasDocument, navigate]);
+
+  if (!doc) return null;
 
   return (
     <section className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-600 dark:text-primary-400">
-          Results
-        </p>
-        <h1 className="mt-1.5 font-display text-2xl font-semibold text-ink-900 dark:text-ink-50 sm:text-3xl">
-          Document Dashboard
-        </h1>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-400">
+            Results
+          </p>
+          <h1 className="mt-1.5 font-display text-2xl font-semibold text-ink-50 sm:text-3xl">
+            Document Dashboard
+          </h1>
+        </div>
+        <button
+          onClick={() => navigate("/")}
+          className="inline-flex items-center gap-2 rounded-xl border border-ink-800 bg-ink-900 px-4 py-2 text-sm font-medium text-ink-300 transition-colors hover:border-primary-700 hover:text-primary-400"
+        >
+          <FileUp size={15} /> New document
+        </button>
       </div>
+
+      {isDemo && (
+        <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-gold-800/50 bg-gold-950/20 px-4 py-3">
+          <Info size={16} className="mt-0.5 shrink-0 text-gold-400" />
+          <p className="text-xs leading-relaxed text-gold-300">
+            You're viewing a bundled sample document. Upload your own scan or PDF
+            from the home page to run the real OCR, translation and summary
+            pipeline.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)_260px]">
         <DocumentSidebar />
 
         <div className="min-w-0 space-y-8">
-          {isLoading ? (
-            <div className="space-y-8">
-              <div className="skeleton h-11 w-full rounded-xl" />
-              <CardSkeleton />
-            </div>
-          ) : (
-            <>
-              <DocumentTabs />
-              <ChatInterface />
-            </>
-          )}
+          <DocumentTabs />
+          <ChatInterface />
         </div>
 
         <StatsSidebar />

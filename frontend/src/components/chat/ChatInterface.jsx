@@ -1,70 +1,78 @@
+import { AlertCircle, Bot, Send, Sparkles, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Send, Sparkles, Bot, User } from "lucide-react";
 import { useDocument } from "../../context/DocumentContext";
-
-function mockReply(question, doc) {
-  const q = question.toLowerCase();
-  if (q.includes("summar")) {
-    return `In short: this folio lays out the lam rim's three-scope framework, then opens with two topics that begin every version of the text — relying properly on a spiritual teacher, and reflecting on how rare and valuable a human rebirth is.`;
-  }
-  if (q.includes("difficult") || q.includes("word") || q.includes("term")) {
-    return `A few terms worth flagging: "dal 'byor" (leisures and endowments) refers to the specific freedoms and conditions that make Dharma practice possible. "Thams cad mkhyen pa" is usually rendered "omniscience" and refers to a buddha's complete knowledge. "Skyes bu gsum" — the "three persons" — is the organizing device for the whole lam rim structure.`;
-  }
-  if (q.includes("main topic") || q.includes("about")) {
-    return `The main topic is the structure of the graduated path (lam rim) to enlightenment, introduced through its three-scope framework and its first two shared preliminaries: reliance on a teacher, and the preciousness of human life.`;
-  }
-  if (q.includes("date")) {
-    return `This folio doesn't contain any explicit dates — it's a doctrinal passage rather than a historical or biographical one. If you'd like, I can check adjacent folios for colophon dates or textual attribution.`;
-  }
-  return `Good question. Based on this folio, ${doc.fileName.replace(/[-_]/g, " ")}: the passage centers on the lam rim's opening structure — the three scopes, reliance on a teacher, and the value of human rebirth. Want me to go deeper on any one of those?`;
-}
+import { sendChatMessage } from "../../lib/api";
 
 export default function ChatInterface() {
-  const { document: doc } = useDocument();
-  const [messages, setMessages] = useState(doc.chatSeed);
+  const { document: doc, isDemo } = useDocument();
+  const [messages, setMessages] = useState(doc?.chatSeed ?? []);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages, isTyping]);
 
-  const send = (text) => {
+  const send = async (text) => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || isTyping) return;
+
+    const history = messages.map((m) => ({
+      role: m.role,
+      content: m.text,
+    }));
+
     setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
     setInput("");
     setIsTyping(true);
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", text: mockReply(trimmed, doc) },
-      ]);
+    setError(null);
+
+    try {
+      const reply = await sendChatMessage({
+        message: trimmed,
+        documentId: doc?.id ?? null,
+        // For the bundled demo there is no server-side document, so send the
+        // text along with the request instead.
+        context: doc?.id
+          ? ""
+          : [doc?.originalText, doc?.translation].filter(Boolean).join("\n\n"),
+        history,
+      });
+
+      setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+    } catch (err) {
+      setError(err.message || "Could not reach the assistant.");
+      setMessages((prev) => prev.slice(0, -1));
+      setInput(trimmed);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 500);
+    }
   };
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-ink-200 bg-white dark:border-ink-800 dark:bg-ink-900">
-      <div className="flex items-center gap-2 border-b border-ink-100 px-5 py-3.5 dark:border-ink-800">
-        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-white">
+    <div className="flex flex-col overflow-hidden rounded-xl border border-ink-800 bg-ink-900">
+      <div className="flex items-center gap-2 border-b border-ink-800 px-5 py-3.5">
+        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary-500 to-primary-700 text-white">
           <Sparkles size={13} />
         </span>
         <div>
-          <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">
+          <p className="text-sm font-semibold text-ink-50">
             Ask AI about this document
           </p>
-          <p className="text-[11px] text-ink-400 dark:text-ink-500">
-            Answers are grounded in the uploaded folio
+          <p className="text-[11px] text-ink-500">
+            {isDemo
+              ? "Sample document — answers are grounded in the sample text"
+              : "Answers are grounded in the uploaded document"}
           </p>
         </div>
       </div>
 
-      <div
-        ref={scrollRef}
-        className="max-h-96 space-y-4 overflow-y-auto px-5 py-5"
-      >
+      <div ref={scrollRef} className="max-h-96 space-y-4 overflow-y-auto px-5 py-5">
         {messages.map((m, i) => (
           <div
             key={i}
@@ -73,17 +81,17 @@ export default function ChatInterface() {
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                 m.role === "user"
-                  ? "bg-ink-200 text-ink-600 dark:bg-ink-700 dark:text-ink-300"
-                  : "bg-primary-100 text-primary-600 dark:bg-primary-950/60 dark:text-primary-400"
+                  ? "bg-ink-700 text-ink-300"
+                  : "bg-primary-950/60 text-primary-400 ring-1 ring-primary-800/50"
               }`}
             >
               {m.role === "user" ? <User size={13} /> : <Bot size={13} />}
             </span>
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+              className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                 m.role === "user"
-                  ? "rounded-tr-sm bg-primary-600 text-white"
-                  : "rounded-tl-sm bg-ink-100 text-ink-700 dark:bg-ink-800 dark:text-ink-200"
+                  ? "rounded-tr-sm bg-gradient-to-r from-primary-600 to-primary-500 text-white"
+                  : "rounded-tl-sm bg-ink-800 text-ink-200"
               }`}
             >
               {m.text}
@@ -93,25 +101,33 @@ export default function ChatInterface() {
 
         {isTyping && (
           <div className="flex gap-2.5">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 dark:bg-primary-950/60 dark:text-primary-400">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-950/60 text-primary-400 ring-1 ring-primary-800/50">
               <Bot size={13} />
             </span>
-            <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-ink-100 px-4 py-3 dark:bg-ink-800">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.3s] dark:bg-ink-500" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.15s] dark:bg-ink-500" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-400 dark:bg-ink-500" />
+            <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-ink-800 px-4 py-3">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-500 [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-500 [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-500" />
             </div>
           </div>
         )}
       </div>
 
-      {messages.length < 3 && (
-        <div className="flex flex-wrap gap-2 border-t border-ink-100 px-5 py-3 dark:border-ink-800">
+      {error && (
+        <div className="mx-5 mb-3 flex items-start gap-2 rounded-lg border border-red-800/60 bg-red-950/30 px-3 py-2">
+          <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-400" />
+          <p className="text-xs leading-relaxed text-red-300">{error}</p>
+        </div>
+      )}
+
+      {messages.length < 3 && doc?.chatSuggestions?.length > 0 && (
+        <div className="flex flex-wrap gap-2 border-t border-ink-800 px-5 py-3">
           {doc.chatSuggestions.map((s) => (
             <button
               key={s}
               onClick={() => send(s)}
-              className="rounded-full border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-600 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-ink-700 dark:text-ink-300 dark:hover:border-primary-700 dark:hover:bg-primary-950/30 dark:hover:text-primary-400"
+              disabled={isTyping}
+              className="rounded-full border border-ink-700 px-3 py-1.5 text-xs font-medium text-ink-300 transition-colors hover:border-primary-700 hover:bg-primary-950/30 hover:text-primary-400 disabled:opacity-40"
             >
               {s}
             </button>
@@ -124,19 +140,20 @@ export default function ChatInterface() {
           e.preventDefault();
           send(input);
         }}
-        className="flex items-center gap-2 border-t border-ink-100 p-3 dark:border-ink-800"
+        className="flex items-center gap-2 border-t border-ink-800 p-3"
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          disabled={isTyping}
           placeholder="Ask a question about this document…"
-          className="flex-1 rounded-lg border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-sm text-ink-800 placeholder:text-ink-400 focus:border-primary-400 focus:bg-white focus:outline-none dark:border-ink-700 dark:bg-ink-800 dark:text-ink-100 dark:placeholder:text-ink-500 dark:focus:bg-ink-900"
+          className="flex-1 rounded-lg border border-ink-700 bg-ink-800 px-3.5 py-2.5 text-sm text-ink-100 placeholder:text-ink-500 focus:border-primary-500 focus:outline-none disabled:opacity-60"
         />
         <button
           type="submit"
-          disabled={!input.trim()}
+          disabled={!input.trim() || isTyping}
           aria-label="Send message"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-primary-600 to-primary-500 text-white transition-colors hover:from-primary-500 hover:to-primary-400 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Send size={16} />
         </button>

@@ -54,6 +54,7 @@ export const processingSteps = [
   { key: "ocr", label: "OCR" },
   { key: "translation", label: "Translation" },
   { key: "summary", label: "Summary" },
+  { key: "keywords", label: "Keywords" },
   { key: "ready", label: "Ready" },
 ];
 

@@ -1,52 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Tibetan:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Tibetan:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-display: "Source Serif 4", serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Primary — Indigo (professional AI accent) */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
 
-  --color-gold-50: #fdfaf0;
-  --color-gold-100: #faf1d6;
-  --color-gold-200: #f3e0a8;
-  --color-gold-300: #ecce79;
-  --color-gold-400: #e0bd57;
-  --color-gold-500: #d4af37;
-  --color-gold-600: #b6912a;
-  --color-gold-700: #927222;
-  --color-gold-800: #6f571c;
-  --color-gold-900: #574515;
+  /* Gold — refined accent for highlights */
+  --color-gold-50: #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
+  --color-gold-800: #92400e;
+  --color-gold-900: #78350f;
+  --color-gold-950: #451a03;
 
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
+  /* Success */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+  --color-success-950: #022c22;
 
-  --color-ink-50: #f6f7f9;
-  --color-ink-100: #eceef2;
-  --color-ink-200: #d7dbe3;
-  --color-ink-300: #b0b8c7;
-  --color-ink-400: #7c869c;
-  --color-ink-500: #5b6478;
-  --color-ink-600: #454d5e;
-  --color-ink-700: #333947;
-  --color-ink-800: #20242e;
-  --color-ink-900: #14171e;
-  --color-ink-950: #0b0d12;
+  /* Ink — deep slate scale */
+  --color-ink-50: #f8fafc;
+  --color-ink-100: #f1f5f9;
+  --color-ink-200: #e2e8f0;
+  --color-ink-300: #cbd5e1;
+  --color-ink-400: #94a3b8;
+  --color-ink-500: #64748b;
+  --color-ink-600: #475569;
+  --color-ink-700: #334155;
+  --color-ink-800: #1e293b;
+  --color-ink-850: #16213a;
+  --color-ink-900: #0f172a;
+  --color-ink-950: #0a0f1c;
 
   --animate-scan: scan 3.2s ease-in-out infinite;
   --animate-fade-up: fadeUp 0.6s ease both;
@@ -74,38 +85,73 @@ html {
 }
 
 body {
-  @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100 font-sans antialiased;
+  @apply bg-ink-950 text-ink-100 font-sans antialiased;
   transition: background-color 0.25s ease, color 0.25s ease;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 110%, rgba(245, 158, 11, 0.06), transparent);
+  background-attachment: fixed;
+}
+
+.light body {
+  @apply bg-ink-50 text-ink-900;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent);
 }
 
 ::selection {
-  @apply bg-gold-300/60 text-ink-900;
+  @apply bg-primary-500/40 text-white;
 }
 
-/* thin manuscript-style divider */
+/* thin professional divider */
 .rule-gold {
-  background: linear-gradient(90deg, transparent, theme(colors.gold.500), transparent);
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.4), transparent);
   height: 1px;
 }
 
 .skeleton {
-  @apply relative overflow-hidden bg-ink-100 dark:bg-ink-800;
+  @apply relative overflow-hidden bg-ink-800;
 }
 .skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
   animation: shimmer 1.6s infinite;
   background-size: 400px 100%;
 }
-.dark .skeleton::after {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+.light .skeleton {
+  @apply bg-ink-200;
+}
+.light .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
+}
+
+/* custom scrollbar for a polished feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ink-700);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-600);
+}
+.light ::-webkit-scrollbar-thumb {
+  background: var(--color-ink-300);
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-400);
 }
 
 @media (prefers-reduced-motion: reduce) {

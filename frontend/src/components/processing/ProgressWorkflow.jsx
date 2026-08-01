@@ -18,7 +18,7 @@ export default function ProgressWorkflow({ activeIndex }) {
                       className={`h-0.5 w-full transition-colors duration-500 ${
                         isDone || isActive
                           ? "bg-primary-500"
-                          : "bg-ink-200 dark:bg-ink-800"
+                          : "bg-ink-800"
                       }`}
                     />
                   )}
@@ -28,8 +28,8 @@ export default function ProgressWorkflow({ activeIndex }) {
                     isDone
                       ? "border-success-500 bg-success-500 text-white"
                       : isActive
-                      ? "border-primary-600 bg-primary-600 text-white shadow-lg shadow-primary-600/30"
-                      : "border-ink-200 bg-white text-ink-400 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-600"
+                      ? "border-primary-500 bg-primary-600 text-white shadow-lg shadow-primary-600/30"
+                      : "border-ink-700 bg-ink-900 text-ink-600"
                   }`}
                 >
                   {isDone ? (
@@ -46,7 +46,7 @@ export default function ProgressWorkflow({ activeIndex }) {
                       className={`h-0.5 w-full transition-colors duration-500 ${
                         isDone
                           ? "bg-primary-500"
-                          : "bg-ink-200 dark:bg-ink-800"
+                          : "bg-ink-800"
                       }`}
                     />
                   )}
@@ -55,10 +55,10 @@ export default function ProgressWorkflow({ activeIndex }) {
               <span
                 className={`mt-2.5 text-center text-xs font-medium sm:text-sm ${
                   isActive
-                    ? "text-primary-700 dark:text-primary-400"
+                    ? "text-primary-400"
                     : isDone
-                    ? "text-ink-700 dark:text-ink-200"
-                    : "text-ink-400 dark:text-ink-600"
+                    ? "text-ink-200"
+                    : "text-ink-600"
                 }`}
               >
                 {step.label}
