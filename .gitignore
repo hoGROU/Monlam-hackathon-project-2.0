@@ -1,0 +1,15 @@
+# Installed dependencies
+node_modules/
+
+# Generated build output
+dist/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
