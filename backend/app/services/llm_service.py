@@ -10,7 +10,7 @@ import os
 import httpx
 from dotenv import load_dotenv
 
-from app.config import MONLAM_API_KEY, MONLAM_BASE_URL
+from app.config import MONLAM_API_KEY, MONLAM_BASE_URL, monlam_auth_headers
 
 load_dotenv()
 
@@ -48,10 +48,7 @@ def _ask_monlam(system: str, prompt: str, max_tokens: int = 1200) -> str:
 
     response = httpx.post(
         url=f"{MONLAM_BASE_URL}/api/v1/ai/chat",
-        headers={
-            "X-API-Key": MONLAM_API_KEY,
-            "Content-Type": "application/json",
-        },
+        headers=monlam_auth_headers({"Content-Type": "application/json"}),
         json={
             "model_name": "melong",
             "temperature": 0.2,

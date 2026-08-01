@@ -45,14 +45,19 @@ export default function UploadArea() {
   };
 
   const startProcessing = () => {
-    if (selected) {
-      selectFile(selected);
-      navigate("/processing");
-    } else {
-      // No file chosen: show the bundled sample document instead.
-      loadDemoDocument();
-      navigate("/dashboard");
+    if (!selected) {
+      // Never silently fall back to the bundled sample - that made it look like
+      // the app "processed" a document the user never uploaded. Open the picker.
+      inputRef.current?.click();
+      return;
     }
+    selectFile(selected);
+    navigate("/processing");
+  };
+
+  const viewSample = () => {
+    loadDemoDocument();
+    navigate("/dashboard");
   };
 
   const clearSelection = () => {
@@ -99,6 +104,7 @@ export default function UploadArea() {
         <p className="mt-1.5 text-sm text-ink-400">
           or{" "}
           <button
+            type="button"
             onClick={() => inputRef.current?.click()}
             className="font-medium text-primary-400 underline-offset-2 hover:underline"
           >
@@ -151,11 +157,28 @@ export default function UploadArea() {
         )}
 
         <button
+          type="button"
           onClick={startProcessing}
-          className="mt-7 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-primary-600/25 transition-all hover:from-primary-500 hover:to-primary-400 active:scale-[0.98]"
+          className={`mt-7 inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold shadow-md transition-all active:scale-[0.98] ${
+            selected
+              ? "bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-primary-600/25 hover:from-primary-500 hover:to-primary-400"
+              : "bg-ink-800 text-ink-300 shadow-ink-950/30 ring-1 ring-ink-700 hover:bg-ink-700 hover:text-ink-100"
+          }`}
         >
-          {selected ? "Process Document" : "View a Sample Document"}
+          {selected ? "Process Document" : "Choose a Document"}
         </button>
+
+        <p className="mt-4 text-xs text-ink-500">
+          Just want to look around?{" "}
+          <button
+            type="button"
+            onClick={viewSample}
+            className="font-medium text-ink-400 underline underline-offset-2 hover:text-primary-400"
+          >
+            View a sample document
+          </button>{" "}
+          (example data, not your file)
+        </p>
       </div>
     </section>
   );

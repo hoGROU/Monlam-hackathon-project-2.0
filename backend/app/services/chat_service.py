@@ -1,6 +1,7 @@
 import httpx
 
-from app.config import MONLAM_API_KEY, MONLAM_BASE_URL
+from app.config import MONLAM_API_KEY, MONLAM_BASE_URL, monlam_auth_headers
+from app.services.debug_log import log_request, log_response
 from app.services.llm_service import extract_text
 
 DEFAULT_SYSTEM = (
@@ -42,23 +43,23 @@ def ask_monlam(message: str, context: str = "", history: list | None = None) -> 
 
     messages.append({"role": "user", "content": message})
 
+    url = f"{MONLAM_BASE_URL}/api/v1/ai/chat"
+    headers = monlam_auth_headers({"Content-Type": "application/json"})
+    payload = {
+        "model_name": "melong",
+        "temperature": 0.2,
+        "max_tokens": 900,
+        "messages": messages,
+    }
+
+    log_request("chat", url, headers, payload)
+
     try:
-        response = httpx.post(
-            url=f"{MONLAM_BASE_URL}/api/v1/ai/chat",
-            headers={
-                "X-API-Key": MONLAM_API_KEY,
-                "Content-Type": "application/json",
-            },
-            json={
-                "model_name": "melong",
-                "temperature": 0.2,
-                "max_tokens": 900,
-                "messages": messages,
-            },
-            timeout=120,
-        )
+        response = httpx.post(url=url, headers=headers, json=payload, timeout=120)
     except httpx.HTTPError as exc:
         return {"success": False, "error": f"Could not reach the chat service: {exc}"}
+
+    log_response("chat", response)
 
     if response.status_code != 200:
         try:

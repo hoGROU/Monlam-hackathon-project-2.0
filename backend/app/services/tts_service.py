@@ -2,7 +2,7 @@ import base64
 
 import httpx
 
-from app.config import MONLAM_API_KEY, MONLAM_BASE_URL
+from app.config import MONLAM_API_KEY, MONLAM_BASE_URL, monlam_auth_headers
 
 VOICES = [
     "lhasa_female",
@@ -64,10 +64,7 @@ def text_to_speech(text: str, voice: str = "lhasa_female") -> dict:
     try:
         response = httpx.post(
             url=f"{MONLAM_BASE_URL}/api/v1/text-to-speech/",
-            headers={
-                "X-API-Key": MONLAM_API_KEY,   # was mistakenly the base URL before
-                "Content-Type": "application/json",
-            },
+            headers=monlam_auth_headers({"Content-Type": "application/json"}),
             json={"text": snippet, "voice_name": voice},
             timeout=300,
         )

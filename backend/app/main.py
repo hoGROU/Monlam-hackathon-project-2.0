@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 import os
 
-# Load .env
-load_dotenv()
+# Importing config loads backend/.env from a path relative to the package, so it
+# works no matter which directory the server was started from.
+from app.config import ANTHROPIC_API_KEY, MONLAM_API_KEY, MONLAM_BASE_URL
 
 # Database
 from app.database.database import engine
@@ -47,9 +47,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Environment Variables
-API_KEY = os.getenv("MONLAM_API_KEY")
-BASE_URL = os.getenv("MONLAM_BASE_URL")
+# Reuse the validated values from config so /health and /config can't report
+# "configured" while the services themselves see placeholders or None.
+API_KEY = MONLAM_API_KEY
+BASE_URL = MONLAM_BASE_URL
+
+
+@app.on_event("startup")
+def _log_configuration() -> None:
+    """
+    Print the effective credential configuration on boot.
+
+    Logs the length only - never the key itself - so a bad/truncated value is
+    obvious from the logs without leaking the secret.
+    """
+    print("--- Monlam AI backend configuration ---")
+    print(f"  API base URL       : {BASE_URL or '(not set)'}")
+    print(f"  MONLAM_API_KEY set : {bool(API_KEY)}")
+    print(f"  MONLAM_API_KEY len : {len(API_KEY) if API_KEY else 0}")
+    print(f"  Auth header        : x-api-key")
+    print(f"  ANTHROPIC_API_KEY  : {'set' if ANTHROPIC_API_KEY else 'not set (falls back to Monlam chat)'}")
+    if not (API_KEY and BASE_URL):
+        print("  WARNING: Monlam credentials incomplete - OCR/chat/speech will fail.")
+    print("---------------------------------------")
 
 
 # -----------------------------
@@ -72,7 +92,7 @@ def health():
     return {
         "status": "ok",
         "monlam_configured": bool(API_KEY and BASE_URL),
-        "anthropic_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "anthropic_configured": bool(ANTHROPIC_API_KEY),
     }
 
 

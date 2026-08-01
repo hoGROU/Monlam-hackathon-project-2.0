@@ -1,6 +1,12 @@
 # Installed dependencies
 node_modules/
 
+# Python virtual environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
 # Generated build output
 dist/
 

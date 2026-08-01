@@ -34,6 +34,18 @@ export default function ProcessingPage() {
   const [warnings, setWarnings] = useState([]);
   const [failed, setFailed] = useState(null);
   const startedRef = useRef(false);
+  const unmountedRef = useRef(false);
+
+  // Only a real unmount should discard the result. Previously a `cancelled`
+  // flag lived inside the effect, so any re-render that re-ran the effect
+  // tripped the cleanup while the guarded second run bailed out early - the
+  // in-flight result was then thrown away and the UI sat on "Upload" forever.
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
 
   // No file? Send the user back to pick one.
   useEffect(() => {
@@ -44,11 +56,9 @@ export default function ProcessingPage() {
     if (!file || startedRef.current) return;
     startedRef.current = true;
 
-    let cancelled = false;
-
     const run = async () => {
       const document = await processFile(file, (event) => {
-        if (cancelled) return;
+        if (unmountedRef.current) return;
 
         const index = stageIndex(event.stage);
         if (index >= 0) {
@@ -62,7 +72,7 @@ export default function ProcessingPage() {
         }
       });
 
-      if (cancelled) return;
+      if (unmountedRef.current) return;
 
       if (document) {
         setTimeout(() => navigate("/dashboard"), 600);
@@ -72,9 +82,6 @@ export default function ProcessingPage() {
     };
 
     run();
-    return () => {
-      cancelled = true;
-    };
   }, [file, processFile, navigate]);
 
   const done = current >= STAGES.length;
@@ -99,10 +106,31 @@ export default function ProcessingPage() {
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-300">
             {error || "Something went wrong while processing your document."}
           </p>
-          <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-ink-500">
-            Check that the backend is running on port 8000 and that MONLAM_API_KEY
-            is set in <span className="font-mono">backend/.env</span>.
-          </p>
+          {/^OCR failed: MONLAM_API_KEY/.test(error || "") ? (
+            <div className="mx-auto mt-4 max-w-md rounded-lg border border-ink-700 bg-ink-900/70 p-4 text-left">
+              <p className="text-xs font-semibold text-ink-200">
+                What this means
+              </p>
+              <p className="mt-1.5 text-xs leading-relaxed text-ink-400">
+                The server has no Monlam API credentials, so it can't read your
+                document. <span className="font-mono">backend/.env</span> still
+                contains the example placeholder{" "}
+                <span className="font-mono">your_monlam_api_key_here</span>.
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-ink-400">
+                Put a real key in{" "}
+                <span className="font-mono">backend/.env</span> and restart the
+                backend. Until then you can still explore the interface with
+                "View a sample document" on the home page.
+              </p>
+            </div>
+          ) : (
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-ink-500">
+              Check that the backend is running on port 8000 and that
+              MONLAM_API_KEY is set in{" "}
+              <span className="font-mono">backend/.env</span>.
+            </p>
+          )}
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <button
               onClick={startOver}

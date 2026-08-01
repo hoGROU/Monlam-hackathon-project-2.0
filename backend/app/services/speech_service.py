@@ -1,6 +1,6 @@
 import httpx
 
-from app.config import MONLAM_API_KEY, MONLAM_BASE_URL
+from app.config import MONLAM_API_KEY, MONLAM_BASE_URL, monlam_auth_headers
 
 AUDIO_MIME = {
     "wav": "audio/wav",
@@ -48,7 +48,7 @@ def speech_to_text(audio_bytes: bytes, filename: str) -> dict:
     try:
         response = httpx.post(
             url=f"{MONLAM_BASE_URL}/api/v1/speech-to-text/",
-            headers={"X-API-Key": MONLAM_API_KEY},  # was mistakenly the base URL before
+            headers=monlam_auth_headers(),
             files={"file": (filename, audio_bytes, _guess_mime(filename))},
             timeout=300,
         )

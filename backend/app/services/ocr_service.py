@@ -1,7 +1,8 @@
 import io
 import httpx
 
-from app.config import MONLAM_API_KEY, MONLAM_BASE_URL
+from app.config import MONLAM_API_KEY, MONLAM_BASE_URL, monlam_auth_headers
+from app.services.debug_log import log_request, log_response
 
 IMAGE_MIME = {
     "png": "image/png",
@@ -77,16 +78,21 @@ def ocr_single_page(image_bytes: bytes, filename: str) -> dict:
         }
 
     url = f"{MONLAM_BASE_URL}/api/v1/ocr/single-page"
+    headers = monlam_auth_headers()
+
+    log_request("ocr", url, headers, {"file": f"{filename} ({len(image_bytes)} bytes, multipart)"})
 
     try:
         response = httpx.post(
             url=url,
-            headers={"X-API-Key": MONLAM_API_KEY},
+            headers=headers,
             files={"file": (filename, image_bytes, _guess_mime(filename))},
             timeout=180,
         )
     except httpx.HTTPError as exc:
         return {"success": False, "error": f"Could not reach the OCR service: {exc}"}
+
+    log_response("ocr", response)
 
     if response.status_code != 200:
         try:

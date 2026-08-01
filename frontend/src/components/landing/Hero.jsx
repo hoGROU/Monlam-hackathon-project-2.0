@@ -1,9 +1,14 @@
 import { Sparkles, UploadCloud } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import ManuscriptScan from "./ManuscriptScan";
 
 export default function Hero() {
-  const navigate = useNavigate();
+  // Send the user to the upload area instead of straight to /processing -
+  // there is no file to process yet at this point.
+  const goToUpload = () => {
+    document
+      .getElementById("upload")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   return (
     <section className="relative overflow-hidden">
@@ -29,7 +34,8 @@ export default function Hero() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
-              onClick={() => navigate("/processing")}
+              type="button"
+              onClick={goToUpload}
               className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/30 transition-all hover:from-primary-500 hover:to-primary-400 hover:shadow-primary-500/40 active:scale-[0.98]"
             >
               <UploadCloud
