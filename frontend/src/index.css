@@ -93,11 +93,41 @@ body {
   background-attachment: fixed;
 }
 
+/*
+ * Light theme.
+ *
+ * The components hardcode the dark palette (bg-ink-950, text-ink-100, ...)
+ * rather than using `dark:` variants, so the cleanest way to get a real light
+ * mode is to invert the ink scale itself: ink-950 becomes the lightest value
+ * and ink-50 the darkest. Every existing utility then keeps working and simply
+ * reads as its light-mode counterpart.
+ */
+.light {
+  --color-ink-50: #0a0f1c;
+  --color-ink-100: #0f172a;
+  --color-ink-200: #1e293b;
+  --color-ink-300: #334155;
+  --color-ink-400: #475569;
+  --color-ink-500: #64748b;
+  --color-ink-600: #94a3b8;
+  --color-ink-700: #cbd5e1;
+  --color-ink-800: #e2e8f0;
+  --color-ink-850: #eaeff6;
+  --color-ink-900: #f1f5f9;
+  --color-ink-950: #f8fafc;
+
+  /* Light accents need more contrast than the pale dark-mode tints. */
+  --color-primary-300: #4338ca;
+  --color-primary-400: #4f46e5;
+  --color-gold-400: #b45309;
+  --color-gold-300: #92400e;
+}
+
 .light body {
-  @apply bg-ink-50 text-ink-900;
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent);
 }
+
 
 ::selection {
   @apply bg-primary-500/40 text-white;
@@ -120,10 +150,8 @@ body {
   animation: shimmer 1.6s infinite;
   background-size: 400px 100%;
 }
-.light .skeleton {
-  @apply bg-ink-200;
-}
 .light .skeleton::after {
+
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
 }
 

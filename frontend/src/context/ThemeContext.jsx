@@ -12,9 +12,15 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = window.document.documentElement;
+    // Both classes are toggled: the stylesheet keys its light overrides off
+    // `.light`, so removing `.dark` alone would leave the UI stuck on dark.
     root.classList.toggle("dark", theme === "dark");
+    root.classList.toggle("light", theme === "light");
+    // Keeps native controls (scrollbars, inputs) in sync with the theme.
+    root.style.colorScheme = theme;
     window.localStorage.setItem("tra-theme", theme);
   }, [theme]);
+
 
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

@@ -46,6 +46,7 @@ export default function DocumentTabs() {
 
       <div className="mt-5 animate-fade-up" key={active}>
         {ActiveComponent && <ActiveComponent />}
+
       </div>
     </div>
   );
