@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Loader2, Mail, PlayCircle, ScanText, Sparkles, User } from "lucide-react";
+import { ArrowRight, Loader2, Mail, PlayCircle, User } from "lucide-react";
 import { useState } from "react";
 import BackgroundEffects from "../components/loading/BackgroundEffects";
 import DharmaChakraLogo from "../components/loading/DharmaChakraLogo";
@@ -7,11 +7,6 @@ import { useAuth } from "../context/AuthContext";
 
 const EASE = [0.22, 1, 0.36, 1];
 
-const PERKS = [
-  { icon: ScanText, text: "Tibetan OCR on manuscripts & scans" },
-  { icon: Sparkles, text: "AI translation, summaries & insights" },
-  { icon: Check, text: "Full workspace — no credit card" },
-];
 
 function Field({ icon: Icon, error, ...props }) {
   return (
@@ -176,25 +171,8 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Perks */}
-        <ul className="mt-6 space-y-2">
-          {PERKS.map(({ icon: Icon, text }, i) => (
-            <motion.li
-              key={text}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.4 + i * 0.1 }}
-              className="flex items-center gap-2.5 text-[12px] text-[#94A3B8]"
-            >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] text-[#A855F7]">
-                <Icon size={12} />
-              </span>
-              {text}
-            </motion.li>
-          ))}
-        </ul>
+        <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-[0.28em] text-[#475569]">
 
-        <p className="mt-7 text-center font-mono text-[10px] uppercase tracking-[0.28em] text-[#475569]">
           Team Code Titan · Wisdom in Code
         </p>
       </motion.div>
