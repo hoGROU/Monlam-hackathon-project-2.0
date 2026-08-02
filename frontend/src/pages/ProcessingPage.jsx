@@ -106,7 +106,8 @@ export default function ProcessingPage() {
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-300">
             {error || "Something went wrong while processing your document."}
           </p>
-          {/^OCR failed: MONLAM_API_KEY/.test(error || "") ? (
+          {(error || "").startsWith("OCR failed: MONLAM_API_KEY") ? (
+
             <div className="mx-auto mt-4 max-w-md rounded-lg border border-ink-700 bg-ink-900/70 p-4 text-left">
               <p className="text-xs font-semibold text-ink-200">
                 What this means

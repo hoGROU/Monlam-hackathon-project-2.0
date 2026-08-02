@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
 import LoadingScreen from "./components/loading/LoadingScreen";
@@ -28,6 +29,16 @@ export default function App() {
 
   // Boot sequence → sign-up gate → application.
   const showGate = booted && ready && !isAuthenticated;
+
+  // Stop the app behind the overlays from scrolling while they are visible.
+  useEffect(() => {
+    const locked = !booted || showGate;
+    document.body.style.overflow = locked ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [booted, showGate]);
+
 
   return (
     <>

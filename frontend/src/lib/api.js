@@ -39,14 +39,21 @@ async function parseError(response) {
 }
 
 async function request(path, { method = "GET", body, signal } = {}) {
-  const isFormData = body instanceof FormData;
+  const options = { method, signal };
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    signal,
-    headers: isFormData || !body ? undefined : { "Content-Type": "application/json" },
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-  });
+  // GET/HEAD may never carry a body, so only attach one for other verbs.
+  if (body != null && method !== "GET" && method !== "HEAD") {
+    if (body instanceof FormData) {
+      // Let the browser set the multipart boundary itself.
+      options.body = body;
+    } else {
+      options.body = JSON.stringify(body);
+      options.headers = { "Content-Type": "application/json" };
+    }
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, options);
+
 
   if (!response.ok) throw await parseError(response);
   if (response.status === 204) return null;

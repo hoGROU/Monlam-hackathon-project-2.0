@@ -10,6 +10,12 @@ __pycache__/
 # Generated build output
 dist/
 
+# Local database and uploaded files
+*.db
+*.sqlite3
+backend/app/upload/
+
+
 # Local environment files
 .env
 .env.*

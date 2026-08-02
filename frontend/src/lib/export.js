@@ -23,7 +23,8 @@ function paragraphs(text, className = "") {
     .join("");
 }
 
-export function buildExportHtml(doc) {
+function buildExportHtml(doc) {
+
   const keywords = Array.isArray(doc.keywords) ? doc.keywords : [];
 
   return `<!doctype html>

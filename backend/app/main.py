@@ -1,6 +1,9 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
+
 
 # Importing config loads backend/.env from a path relative to the package, so it
 # works no matter which directory the server was started from.
@@ -22,12 +25,39 @@ from app.routes.process import router as process_router
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+
+def _log_configuration() -> None:
+    """
+    Print the effective credential configuration on boot.
+
+    Logs the length only - never the key itself - so a bad/truncated value is
+    obvious from the logs without leaking the secret.
+    """
+    print("--- Monlam AI backend configuration ---")
+    print(f"  API base URL       : {MONLAM_BASE_URL or '(not set)'}")
+    print(f"  MONLAM_API_KEY set : {bool(MONLAM_API_KEY)}")
+    print(f"  MONLAM_API_KEY len : {len(MONLAM_API_KEY) if MONLAM_API_KEY else 0}")
+    print("  Auth header        : x-api-key")
+    print(f"  ANTHROPIC_API_KEY  : {'set' if ANTHROPIC_API_KEY else 'not set (falls back to Monlam chat)'}")
+    if not (MONLAM_API_KEY and MONLAM_BASE_URL):
+        print("  WARNING: Monlam credentials incomplete - OCR/chat/speech will fail.")
+    print("---------------------------------------")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    _log_configuration()
+    yield
+
+
 # Create FastAPI app
 app = FastAPI(
     title="Monlam AI Backend",
     version="1.0.0",
-    description="Backend for OCR, Translation, Summary, Chat, Speech-to-Text and Text-to-Speech"
+    description="Backend for OCR, Translation, Summary, Chat, Speech-to-Text and Text-to-Speech",
+    lifespan=lifespan,
 )
+
 
 # -----------------------------
 # CORS (so the Vite frontend can call us)
@@ -53,27 +83,9 @@ API_KEY = MONLAM_API_KEY
 BASE_URL = MONLAM_BASE_URL
 
 
-@app.on_event("startup")
-def _log_configuration() -> None:
-    """
-    Print the effective credential configuration on boot.
-
-    Logs the length only - never the key itself - so a bad/truncated value is
-    obvious from the logs without leaking the secret.
-    """
-    print("--- Monlam AI backend configuration ---")
-    print(f"  API base URL       : {BASE_URL or '(not set)'}")
-    print(f"  MONLAM_API_KEY set : {bool(API_KEY)}")
-    print(f"  MONLAM_API_KEY len : {len(API_KEY) if API_KEY else 0}")
-    print(f"  Auth header        : x-api-key")
-    print(f"  ANTHROPIC_API_KEY  : {'set' if ANTHROPIC_API_KEY else 'not set (falls back to Monlam chat)'}")
-    if not (API_KEY and BASE_URL):
-        print("  WARNING: Monlam credentials incomplete - OCR/chat/speech will fail.")
-    print("---------------------------------------")
-
-
 # -----------------------------
 # Home
+
 # -----------------------------
 
 @app.get("/")
